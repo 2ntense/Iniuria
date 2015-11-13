@@ -5,27 +5,53 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.intense.iniuria.Enum.DamageType;
 
+import org.w3c.dom.Text;
+
 public class MainActivity extends AppCompatActivity {
+
+    private DamageCalculator damageCalculator;
 
     private Champion attackingChampion;
     private Champion defendingChampion;
     private EditText incomingDamage;
     private Spinner damageType;
 
+    private TextView tvArmorPenFlat;
+    private TextView tvArmorPenPerc;
+    private TextView tvMagicPenFlat;
+    private TextView tvMagicPenPerc;
+
+    private TextView tvArmor;
+    private TextView tvMagicResist;
+
+    private TextView tvCalculatedDamage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        tvArmorPenFlat = (TextView) findViewById(R.id.textView_armor_penetration_flat);
+        tvArmorPenPerc = (TextView) findViewById(R.id.textView_armorPenetration_percentage);
+        tvMagicPenFlat = (TextView) findViewById(R.id.textView_magic_penetration_flat);
+        tvMagicPenPerc = (TextView) findViewById(R.id.textView_magic_penetration_percentage);
 
-        damageType = (Spinner) findViewById(R.id.damage_type);
+        tvArmor = (TextView) findViewById(R.id.textView_armor);
+        tvMagicResist = (TextView) findViewById(R.id.textView_magic_resist);
+
+        tvCalculatedDamage = (TextView) findViewById(R.id.textView_calculated_damage);
+
+        damageType = (Spinner) findViewById(R.id.spinner_damage_type);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.damage_types, android.R.layout.simple_spinner_item);
 
@@ -33,6 +59,25 @@ public class MainActivity extends AppCompatActivity {
         damageType.setAdapter(adapter);
 
         incomingDamage = (EditText) findViewById(R.id.incoming_damage);
+        incomingDamage.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!s.toString().equals("")) {
+                    calculateDamage();
+                }
+
+            }
+        });
     }
 
     public void onClickAddAttackingChampion(View view) {
@@ -55,10 +100,19 @@ public class MainActivity extends AppCompatActivity {
                         int magicPenFlat = Integer.valueOf(etMagicPenFlat.getText().toString());
                         double magicPenPerc = Double.valueOf(etMagicPenPerc.getText().toString());
 
+                        tvArmorPenFlat.setText(String.valueOf(armorPenFlat));
+                        tvArmorPenPerc.setText(String.valueOf(armorPenPerc));
+                        tvMagicPenFlat.setText(String.valueOf(magicPenFlat));
+                        tvMagicPenPerc.setText(String.valueOf(magicPenPerc));
+
                         armorPenPerc = armorPenPerc / 100;
                         magicPenPerc = magicPenPerc / 100;
 
                         attackingChampion = new Champion(armorPenFlat, armorPenPerc, magicPenFlat, magicPenPerc);
+
+                        if (defendingChampion != null) {
+                            damageCalculator = new DamageCalculator(attackingChampion, defendingChampion);
+                        }
                     }
                 });
         builder.show();
@@ -80,7 +134,14 @@ public class MainActivity extends AppCompatActivity {
                         double armor = Double.valueOf(etArmor.getText().toString());
                         double magicResist = Double.valueOf(etMagicResist.getText().toString());
 
+                        tvArmor.setText(String.valueOf(armor));
+                        tvMagicResist.setText(String.valueOf(magicResist));
+
                         defendingChampion = new Champion(armor, magicResist);
+
+                        if(attackingChampion != null) {
+                            damageCalculator = new DamageCalculator(attackingChampion, defendingChampion);
+                        }
                     }
                 });
         builder.show();
@@ -101,22 +162,31 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(String.valueOf(damage));
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1 && resultCode == 1){
-            int armorPenFlat = data.getIntExtra("armorPenFlat", 0);
-            double armorPenPerc = data.getDoubleExtra("armorPenPerc", 0);
-            int magicPenFlat = data.getIntExtra("magicPenFlat", 0);
-            double magicPenPerc = data.getDoubleExtra("magicPenPerc", 0);
+    private void calculateDamage() {
 
-            attackingChampion = new Champion(armorPenFlat, armorPenPerc, magicPenFlat, magicPenPerc);
-        }
-        else if(requestCode == 1 && resultCode == 2) {
-            double armor = data.getIntExtra("armor", 0);
-            double magicResist = data.getIntExtra("magicResist", 0);
+        DamageType damageType = null;
 
-            defendingChampion = new Champion(armor, magicResist);
+        if(this.damageType.getSelectedItemPosition() == 0) {
+            damageType = DamageType.PHYSICAL;
         }
+        else if(this.damageType.getSelectedItemPosition() == 1) {
+            damageType = DamageType.MAGIC;
+        }
+
+        double damage = damageCalculator.calculateDamage(Integer.valueOf(incomingDamage.getText().toString()), damageType);
+
+        tvCalculatedDamage.setText(String.valueOf(damage));
+
     }
+
+    private boolean isInteger(String s) {
+
+        for(int a=0;a<s.length();a++)
+        {
+            if(a==0 && s.charAt(a) == '-') continue;
+            if( !Character.isDigit(s.charAt(a)) ) return false;
+        }
+        return true;
+    }
+
 }
