@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="damage_types">
+        <item>Physical</item>
+        <item>Magic</item>
+    </string-array>
+</resources>
