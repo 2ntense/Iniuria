@@ -55,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
                         int magicPenFlat = Integer.valueOf(etMagicPenFlat.getText().toString());
                         double magicPenPerc = Double.valueOf(etMagicPenPerc.getText().toString());
 
+                        armorPenPerc = armorPenPerc / 100;
+                        magicPenPerc = magicPenPerc / 100;
+
                         attackingChampion = new Champion(armorPenFlat, armorPenPerc, magicPenFlat, magicPenPerc);
                     }
                 });
