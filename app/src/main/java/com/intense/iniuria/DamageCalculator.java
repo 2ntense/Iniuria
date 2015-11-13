@@ -1,25 +1,24 @@
 package com.intense.iniuria;
 
-/**
- * Created by Intense on 7-11-2015.
- */
+import com.intense.iniuria.Enum.DamageType;
+
 public class DamageCalculator {
 
-    private Champion sourceChampion;
-    private Champion destinationChampion;
+    private Champion attackingChampion;
+    private Champion defendingChampion;
 
-    public DamageCalculator(Champion sourceChampion, Champion destinationChampion) {
+    public DamageCalculator(Champion attackingChampion, Champion defendingChampion) {
 
-        this.sourceChampion = sourceChampion;
-        this.destinationChampion = destinationChampion;
+        this.attackingChampion = attackingChampion;
+        this.defendingChampion = defendingChampion;
     }
 
     protected double calculateDamage(int damageIncoming, DamageType damageType) {
 
         double resistance = 0;
 
-        if(damageType == DamageType.PHYSICAL) resistance = destinationChampion.getArmor();
-        else if(damageType == DamageType.MAGIC) resistance = destinationChampion.getMagicResist();
+        if(damageType == DamageType.PHYSICAL) resistance = defendingChampion.getArmor();
+        else if(damageType == DamageType.MAGIC) resistance = defendingChampion.getMagicResist();
 
         double penetration = calculatePenetration(damageType);
         double newResistance = resistance - penetration;
@@ -43,14 +42,14 @@ public class DamageCalculator {
         double resistance = 0;
 
         if(damageType == DamageType.PHYSICAL) {
-            penetrationPercentage = sourceChampion.getArmorPenetrationPercentage();
-            penetrationFlat = sourceChampion.getArmorPenetrationFlat();
-            resistance = destinationChampion.getArmor();
+            penetrationPercentage = attackingChampion.getArmorPenetrationPercentage();
+            penetrationFlat = attackingChampion.getArmorPenetrationFlat();
+            resistance = defendingChampion.getArmor();
         }
         else if(damageType == DamageType.MAGIC) {
-            penetrationPercentage = sourceChampion.getMagicPenetrationPercentage();
-            penetrationFlat = sourceChampion.getMagicPenetrationFlat();
-            resistance = destinationChampion.getMagicResist();
+            penetrationPercentage = attackingChampion.getMagicPenetrationPercentage();
+            penetrationFlat = attackingChampion.getMagicPenetrationFlat();
+            resistance = defendingChampion.getMagicResist();
         }
 
         //Check if percentage penetration is available

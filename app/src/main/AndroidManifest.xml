@@ -15,10 +15,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NewChampionActivity" >
-        </activity>
-        <activity android:name=".NewChampion2Activity" >
-        </activity>
     </application>
 
 </manifest>

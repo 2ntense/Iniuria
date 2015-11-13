@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="15dp"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/armorPenFlat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Flat armor pen"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/armorPenPerc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Perc armor pen"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/magicPenFlat"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Flat magic pen"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/magicPenPerc"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Perc magic pen"
+        android:inputType="numberDecimal" />
+
+</LinearLayout>

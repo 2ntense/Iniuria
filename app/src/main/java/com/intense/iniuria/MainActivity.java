@@ -1,26 +1,29 @@
 package com.intense.iniuria;
 
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.intense.iniuria.Enum.DamageType;
+
 public class MainActivity extends AppCompatActivity {
 
-    private Champion champion0;
-    private Champion champion1;
-    private EditText incomingDamge;
+    private Champion attackingChampion;
+    private Champion defendingChampion;
+    private EditText incomingDamage;
     private Spinner damageType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         damageType = (Spinner) findViewById(R.id.damage_type);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -29,27 +32,59 @@ public class MainActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         damageType.setAdapter(adapter);
 
-        incomingDamge = (EditText) findViewById(R.id.incoming_damage);
-
-        //DamageCalculator damageCalculator = new DamageCalculator(champion0, champion1);
-        //double damage = damageCalculator.calculateDamage(350, DamageType.MAGIC);
-        //System.out.println(String.valueOf(damage));
+        incomingDamage = (EditText) findViewById(R.id.incoming_damage);
     }
 
-    public void onClickAddChampionOne(View view) {
-        System.out.println("WORKING");
+    public void onClickAddAttackingChampion(View view) {
 
-        Intent intent = new Intent(this, NewChampionActivity.class);
-        startActivityForResult(intent, 1);
+        final View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_attacking_champion, null);
+        final EditText etArmorPenFlat = (EditText) dialogView.findViewById(R.id.armorPenFlat);
+        final EditText etArmorPenPerc = (EditText) dialogView.findViewById(R.id.armorPenPerc);
+        final EditText etMagicPenFlat = (EditText) dialogView.findViewById(R.id.magicPenFlat);
+        final EditText etMagicPenPerc = (EditText) dialogView.findViewById(R.id.magicPenPerc);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Add attacking champion");
+        builder.setView(dialogView)
+                .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        int armorPenFlat = Integer.valueOf(etArmorPenFlat.getText().toString());
+                        double armorPenPerc = Double.valueOf(etArmorPenPerc.getText().toString());
+                        int magicPenFlat = Integer.valueOf(etMagicPenFlat.getText().toString());
+                        double magicPenPerc = Double.valueOf(etMagicPenPerc.getText().toString());
+
+                        attackingChampion = new Champion(armorPenFlat, armorPenPerc, magicPenFlat, magicPenPerc);
+                    }
+                });
+        builder.show();
     }
 
-    public void onClickAddChampionTwo(View view) {
-        Intent intent = new Intent(this, NewChampion2Activity.class);
-        startActivityForResult(intent, 1);
+    public void onClickAddDefendingChampion(View view) {
+
+        final View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_defending_champion, null);
+        final EditText etArmor = (EditText) dialogView.findViewById(R.id.armor);
+        final EditText etMagicResist = (EditText) dialogView.findViewById(R.id.magicResist);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Add defending champion");
+        builder.setView(dialogView)
+                .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        double armor = Double.valueOf(etArmor.getText().toString());
+                        double magicResist = Double.valueOf(etMagicResist.getText().toString());
+
+                        defendingChampion = new Champion(armor, magicResist);
+                    }
+                });
+        builder.show();
     }
 
     public void onClickCalculate(View view) {
-        DamageCalculator damageCalculator = new DamageCalculator(champion0, champion1);
+        DamageCalculator damageCalculator = new DamageCalculator(attackingChampion, defendingChampion);
         DamageType damageType = null;
 
         if(this.damageType.getSelectedItemPosition() == 0) {
@@ -59,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             damageType = DamageType.MAGIC;
         }
 
-        double damage = damageCalculator.calculateDamage(Integer.valueOf(incomingDamge.getText().toString()), damageType);
+        double damage = damageCalculator.calculateDamage(Integer.valueOf(incomingDamage.getText().toString()), damageType);
         System.out.println(String.valueOf(damage));
     }
 
@@ -72,13 +107,13 @@ public class MainActivity extends AppCompatActivity {
             int magicPenFlat = data.getIntExtra("magicPenFlat", 0);
             double magicPenPerc = data.getDoubleExtra("magicPenPerc", 0);
 
-            champion0 = new Champion(armorPenFlat, armorPenPerc, magicPenFlat, magicPenPerc);
+            attackingChampion = new Champion(armorPenFlat, armorPenPerc, magicPenFlat, magicPenPerc);
         }
         else if(requestCode == 1 && resultCode == 2) {
             double armor = data.getIntExtra("armor", 0);
             double magicResist = data.getIntExtra("magicResist", 0);
 
-            champion1 = new Champion(armor, magicResist);
+            defendingChampion = new Champion(armor, magicResist);
         }
     }
 }
